@@ -7,10 +7,8 @@ public class Elavator_system {
 
     public static void main(String[] args) {
         System.out.println("Welcome to MyLift");
-        Thread requestListenerThread = new Thread(new RequestListener(),
-                "RequestListenerThread");
-        Thread requestProcessorThread = new Thread(new RequestProcessor(),
-                "RequestProcessorThread");
+        Thread requestListenerThread = new Thread(new RequestListener(),"RequestListenerThread");
+        Thread requestProcessorThread = new Thread(new RequestProcessor(),"RequestProcessorThread");
 
         Elevator.getInstance().setRequestProcessorThread(requestProcessorThread);
 
@@ -25,7 +23,7 @@ class Elevator {
 
     private static Elevator elevator = null;
 
-    private TreeSet requestSet = new TreeSet();
+    private static TreeSet requestSet = new TreeSet();
 
     private int currentFloor = 0;
 
@@ -48,14 +46,10 @@ class Elevator {
         if(requestProcessorThread.getState() == Thread.State.WAITING){
             notify();
         }else{
-            requestProcessorThread.interrupt();
+      //      requestProcessorThread.interrupt();
         }
 
     }
-
-    /**
-     * @return next request to process based on elevator current floor and direction
-     */
     public synchronized int nextFloor() {
 
         Integer floor = null;
@@ -168,7 +162,6 @@ class RequestListener implements Runnable {
         while (true) {
             String floorNumberStr = null;
             try {
-                // Read input from console
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
                 floorNumberStr = bufferedReader.readLine();
             } catch (IOException e) {
