@@ -1,30 +1,18 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.TreeSet;
 
 public class Elavator_system {
 
     public static void main(String[] args) {
         System.out.println("Welcome to MyLift");
-        Thread requestListenerThread = new Thread(new RequestListener(), "RequestListenerThread");
-        Thread requestProcessorThread = new Thread(new RequestProcessor(), "RequestProcessorThread");
+        Thread requestListenerThread = new Thread(new RequestListener(),
+                "RequestListenerThread");
+        Thread requestProcessorThread = new Thread(new RequestProcessor(),
+                "RequestProcessorThread");
 
-//        Elevator.getInstance().setRequestProcessorThread(requestProcessorThread);
-
-        Elevator elevator1 = new Elevator();
-        Elevator elevator2 = new Elevator();
-
-        ArrayList<Elevator> elevatorArrayList = new ArrayList<Elevator>();
-
-        elevatorArrayList.add(elevator1);
-        elevatorArrayList.add(elevator2);
-
-        Elevator.assignInstance(elevatorArrayList);
-
-        elevator1.setRequestProcessorThread(requestProcessorThread);
-        elevator2.setRequestProcessorThread(requestProcessorThread);
+        Elevator.getInstance().setRequestProcessorThread(requestProcessorThread);
 
         requestListenerThread.start();
         requestProcessorThread.start();
@@ -35,49 +23,22 @@ public class Elavator_system {
 
 class Elevator {
 
-    public boolean status = false;
     private static Elevator elevator = null;
 
-    private static TreeSet requestSet = new TreeSet();
+    private TreeSet requestSet = new TreeSet();
 
     private int currentFloor = 0;
 
     private Direction direction = Direction.UP;
 
-//    private Elevator() {};
+    private Elevator() {};
 
     private Thread requestProcessorThread;
 
-
-    static ArrayList<Elevator> arrayListelevator;
-
-    static void assignInstance(ArrayList<Elevator> elevatorArrayList)
-    {
-        arrayListelevator = new ArrayList<Elevator>(elevatorArrayList);
-    }
-
-
     static Elevator getInstance() {
-        Elevator setelevator=null;
-        int prevfloor=100;
-        //       if (elevator == null) {
-//            elevator = new Elevator();
-        for(int i=0;i<2;i++) {
-            elevator = arrayListelevator.get(i);
-
-            //     System.out.println(elevator);
-            if (elevator.currentFloor < prevfloor) {
-//                    System.out.println("---------");
-                setelevator = elevator;
-                prevfloor = elevator.currentFloor;
-            }
+        if (elevator == null) {
+            elevator = new Elevator();
         }
-        //      }
-        if(setelevator != null)
-        {
-            elevator = setelevator;
-        }
-//        System.out.println("---------" + elevator);
         return elevator;
     }
 
@@ -92,6 +53,9 @@ class Elevator {
 
     }
 
+    /**
+     * @return next request to process based on elevator current floor and direction
+     */
     public synchronized int nextFloor() {
 
         Integer floor = null;
@@ -111,27 +75,10 @@ class Elevator {
         }
         if (floor == null) {
             try {
-                Elevator elevatorinstance,elevatorwaitinstance;
                 System.out.println("Waiting at Floor :" + getCurrentFloor());
-                this.status=false;
-
-                for(int i=0;i<2;i++) {
-                    elevatorinstance = arrayListelevator.get(i);
-                    if(elevatorinstance.status==true)
-                    {
-                        requestProcessorThread = elevatorinstance.getRequestProcessorThread();
-                        wait();
-                        requestProcessorThread.interrupt();
-                    }
-                }
                 wait();
-                //    Thread.sleep(1000);
-//                requestProcessorThread.run();
-                //requestProcessorThread.interrupt();
-
             } catch (InterruptedException e) {
-                System.out.println("%%%%%%%%%%%");
-                // e.printStackTrace();
+                e.printStackTrace();
             }
         } else {
             requestSet.remove(floor);
@@ -153,7 +100,7 @@ class Elevator {
 
         System.out.println("Floor : " + currentFloor);
 
-        Thread.sleep(1000);
+        Thread.sleep(3000);
     }
 
     public Direction getDirection() {
@@ -188,8 +135,6 @@ class RequestProcessor implements Runnable {
     public void run() {
         while (true) {
             Elevator elevator = Elevator.getInstance();
-            elevator.status=true;
-            System.out.println(Elevator.getInstance());
             int floor = elevator.nextFloor();
             int currentFloor = elevator.getCurrentFloor();
             try{
@@ -204,7 +149,6 @@ class RequestProcessor implements Runnable {
                         }
                     }
                     System.out.println("Welcome to Floor : " + elevator.getCurrentFloor());
-                    Thread.sleep(3000);
                 }
 
             }catch(InterruptedException e){
@@ -249,4 +193,4 @@ class RequestListener implements Runnable {
 
 enum Direction {
     UP, DOWN
-} 
+}
