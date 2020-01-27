@@ -14,8 +14,7 @@ public class Elavator_system {
 
         requestListenerThread.start();
         requestProcessorThread.start();
-
-
+        
     }
 }
 
@@ -46,7 +45,7 @@ class Elevator {
         if(requestProcessorThread.getState() == Thread.State.WAITING){
             notify();
         }else{
-      //      requestProcessorThread.interrupt();
+            requestProcessorThread.interrupt();
         }
 
     }
@@ -75,6 +74,7 @@ class Elevator {
                 e.printStackTrace();
             }
         } else {
+            System.out.println("removed" + floor);
             requestSet.remove(floor);
         }
         return (floor == null) ? -1 : floor;
@@ -129,16 +129,16 @@ class RequestProcessor implements Runnable {
     public void run() {
         while (true) {
             Elevator elevator = Elevator.getInstance();
-            int floor = elevator.nextFloor();
+            int nextfloor = elevator.nextFloor();
             int currentFloor = elevator.getCurrentFloor();
             try{
-                if (floor >= 0) {
-                    if (currentFloor > floor) {
-                        while (currentFloor > floor) {
+                if (nextfloor >= 0) {
+                    if (currentFloor > nextfloor) {
+                        while (currentFloor > nextfloor) {
                             elevator.setCurrentFloor(--currentFloor);
                         }
                     } else {
-                        while (currentFloor < floor) {
+                        while (currentFloor < nextfloor) {
                             elevator.setCurrentFloor(++currentFloor);
                         }
                     }
@@ -146,8 +146,10 @@ class RequestProcessor implements Runnable {
                 }
 
             }catch(InterruptedException e){
-                if(elevator.getCurrentFloor() != floor){
-                    elevator.getRequestSet().add(floor);
+//                System.out.println(e);
+                if(elevator.getCurrentFloor() != nextfloor){
+                    System.out.println("added "+nextfloor);
+                    elevator.getRequestSet().add(nextfloor);
                 }
             }
         }
@@ -159,8 +161,9 @@ class RequestListener implements Runnable {
     @Override
     public void run() {
 
-        while (true) {
-            String floorNumberStr = null;
+        while (true)
+        {
+                String floorNumberStr = null;
             try {
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
                 floorNumberStr = bufferedReader.readLine();
