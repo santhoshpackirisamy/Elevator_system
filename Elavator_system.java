@@ -2,8 +2,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.TreeSet;
+
+import static java.lang.Math.abs;
 
 public class Elavator_system {
 
@@ -38,7 +39,7 @@ public class Elavator_system {
         requestProcessorThread1.start();
         requestProcessorThread2.start();
         requestProcessorThread3.start();
-        
+
     }
 }
 
@@ -100,6 +101,15 @@ class Elevator {
                     bestelevator = elevatoritr;
                 }
             }
+            else
+            {
+                if(elevatoritr.requestSet.isEmpty())
+                {
+                    int tempfloordifference = abs(curflr-floor);
+                    floordifference = tempfloordifference;
+                    bestelevator = elevatoritr;
+                }
+            }
         }
 
         if(bestelevator==null)
@@ -146,13 +156,13 @@ class Elevator {
 
                 for(int i=0;i<Elevator.ElevatorInstance.size();i++) {
                     if ((!Elevator.ElevatorInstance.get(i).requestSet.isEmpty()) && Elevator.ElevatorInstance.get(i).requestProcessorThread.getState() == Thread.State.WAITING) {
-                        System.out.println(requestProcessorThread.getName());
+                        System.out.println(Elevator.ElevatorInstance.get(i).requestProcessorThread.getName() + " is not waiting");
                         Elevator.ElevatorInstance.get(i).requestProcessorThread.interrupt();
                     }
                 }
                 wait();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+//                e.printStackTrace();
             }
         } else {
             System.out.println("removed" + floor);
@@ -165,7 +175,7 @@ class Elevator {
         return currentFloor;
     }
 
-    public void setCurrentFloor(int currentFloor,String t) throws InterruptedException {
+    public void setCurrentFloor(int currentFloor) throws InterruptedException {
         if (this.currentFloor > currentFloor) {
             setDirection(Direction.DOWN);
         } else {
@@ -173,9 +183,9 @@ class Elevator {
         }
         this.currentFloor = currentFloor;
 
-        System.out.println(t + " Floor : " + currentFloor);
+        System.out.println(requestProcessorThread.getName() + " Floor : " + currentFloor);
 
-        Thread.sleep(3000);
+        Thread.sleep(1000);
     }
 
     public Direction getDirection() {
@@ -217,7 +227,6 @@ class RequestProcessor implements Runnable {
             for(int i=0;i<Elevator.ElevatorInstance.size();i++) {
                 if (Elevator.ElevatorInstance.get(i).getRequestProcessorThread().getState() != Thread.State.WAITING) {
                     elevator = Elevator.ElevatorInstance.get(i);
-                    System.out.println(i +" hi");
                 }
             }
 
@@ -232,11 +241,11 @@ class RequestProcessor implements Runnable {
                 if (nextfloor >= 0) {
                     if (currentFloor > nextfloor) {
                         while (currentFloor > nextfloor) {
-                            elevator.setCurrentFloor(--currentFloor,Thread.currentThread().getName());
+                            elevator.setCurrentFloor(--currentFloor);
                         }
                     } else {
                         while (currentFloor < nextfloor) {
-                            elevator.setCurrentFloor(++currentFloor,Thread.currentThread().getName());
+                            elevator.setCurrentFloor(++currentFloor);
                         }
                     }
                     System.out.println("Welcome to Floor : " + elevator.getCurrentFloor());
@@ -271,18 +280,26 @@ class RequestListener implements Runnable {
             if (isValidFloorNumber(floorNumberStr)) {
                 System.out.println("User Pressed : " + floorNumberStr);
 
-            Elevator elevator = Elevator.getInstance();
+            Elevator elevator = null;
             for(int i=0;i<Elevator.ElevatorInstance.size();i++) {
                 if (Elevator.ElevatorInstance.get(i).getRequestProcessorThread().getState() != Thread.State.WAITING) {
                     elevator = Elevator.ElevatorInstance.get(i);
                     System.out.println(i +" hi");
                 }
             }
+
+            if(elevator==null)
+            {
+                elevator = Elevator.ElevatorInstance.get(0);
+            }
           //      Elevator elevator = Elevator.getInstance();
                 elevator.addFloor(Integer.parseInt(floorNumberStr));
+
+            elevator.getRequestProcessorThread().interrupt();
             } else {
                 System.out.println("Floor Request Invalid : " + floorNumberStr);
             }
+
         }
     }
 
