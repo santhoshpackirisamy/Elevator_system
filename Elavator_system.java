@@ -1,19 +1,42 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.TreeSet;
 
 public class Elavator_system {
 
     public static void main(String[] args) {
         System.out.println("Welcome to MyLift");
-        Thread requestListenerThread = new Thread(new RequestListener(),"RequestListenerThread");
-        Thread requestProcessorThread = new Thread(new RequestProcessor(),"RequestProcessorThread");
 
-        Elevator.getInstance().setRequestProcessorThread(requestProcessorThread);
+        ArrayList<Elevator> ElevatorInstance = new ArrayList<Elevator>();
+
+        Thread requestListenerThread = new Thread(new RequestListener(),"RequestListenerThread");
+
+        Thread requestProcessorThread1 = new Thread(new RequestProcessor(),"RequestProcessorThreadforLift1");
+        Thread requestProcessorThread2 = new Thread(new RequestProcessor(),"RequestProcessorThreadforLift2");
+        Thread requestProcessorThread3 = new Thread(new RequestProcessor(),"RequestProcessorThreadforLift3");
+
+        Elevator elevator1 = new Elevator();
+        Elevator elevator2 = new Elevator();
+        Elevator elevator3 = new Elevator();
+
+        ElevatorInstance.add(elevator1);
+        ElevatorInstance.add(elevator2);
+        ElevatorInstance.add(elevator3);
+
+        elevator1.setRequestProcessorThread(requestProcessorThread1);
+        elevator2.setRequestProcessorThread(requestProcessorThread2);
+        elevator3.setRequestProcessorThread(requestProcessorThread3);
+
+        Elevator.setElevator(ElevatorInstance);
+
+//        System.out.println(Elevator.getInstance().getRequestProcessorThread().getName());
 
         requestListenerThread.start();
-        requestProcessorThread.start();
+        requestProcessorThread1.start();
+        requestProcessorThread2.start();
+        requestProcessorThread3.start();
         
     }
 }
@@ -28,13 +51,21 @@ class Elevator {
 
     private Direction direction = Direction.UP;
 
-    private Elevator() {};
+//    private Elevator() {};
+
+    static ArrayList<Elevator> ElevatorInstance;
 
     private Thread requestProcessorThread;
 
+    public static void setElevator(ArrayList<Elevator> ElevatorInstance)
+    {
+         Elevator.ElevatorInstance = new ArrayList<Elevator>(ElevatorInstance);
+    }
+
     static Elevator getInstance() {
         if (elevator == null) {
-            elevator = new Elevator();
+//            elevator = new Elevator();
+            elevator = Elevator.ElevatorInstance.get(0);
         }
         return elevator;
     }
