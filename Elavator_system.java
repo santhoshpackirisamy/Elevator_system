@@ -106,8 +106,10 @@ class Elevator {
                 if(elevatoritr.requestSet.isEmpty())
                 {
                     int tempfloordifference = abs(curflr-floor);
-                    floordifference = tempfloordifference;
-                    bestelevator = elevatoritr;
+                    if(tempfloordifference < floordifference) {
+                        floordifference = tempfloordifference;
+                        bestelevator = elevatoritr;
+                    }
                 }
             }
         }
