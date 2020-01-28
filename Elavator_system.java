@@ -19,15 +19,10 @@ public class Elavator_system {
         Thread requestProcessorThread3 = new Thread(new RequestProcessor(),"Lift3");
         Thread requestProcessorThread4 = new Thread(new RequestProcessor(),"Lift4");
 
-        Elevator elevator1 = new Elevator();
-        elevator1.setType(Type.ALL);
-        Elevator elevator2 = new Elevator();
-        elevator2.setType(Type.ALL);
-        Elevator elevator3 = new Elevator();
-        elevator3.setType(Type.ODD);
-        Elevator elevator4 = new Elevator();
-        elevator4.setType(Type.EVEN);
-
+        Elevator elevator1 = new Elevator(Type.ALL);
+        Elevator elevator2 = new Elevator(Type.ALL);
+        Elevator elevator3 = new Elevator(Type.ODD);
+        Elevator elevator4 = new Elevator(Type.EVEN);
         ElevatorInstance.add(elevator1);
         ElevatorInstance.add(elevator2);
         ElevatorInstance.add(elevator3);
@@ -64,6 +59,10 @@ class Elevator {
     static ArrayList<Elevator> ElevatorInstance;
 
     private Thread requestProcessorThread;
+
+    public Elevator(Type type) {
+        Type = type;
+    }
 
     public static void setElevator(ArrayList<Elevator> ElevatorInstance)
     {
