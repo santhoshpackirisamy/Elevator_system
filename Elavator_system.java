@@ -46,7 +46,7 @@ public class Elavator_system {
     }
 }
 
-class Elevator {
+class Elevator implements ElevatorSystemInterface{
 
     private static Elevator elevator = null;
 
@@ -71,7 +71,7 @@ class Elevator {
         Elevator.ElevatorInstance = new ArrayList<Elevator>(ElevatorInstance);
     }
 
-
+    @Override
     public synchronized void addFloor(int floor) {
 
         Elevator elevatoritr = null;
@@ -152,6 +152,8 @@ class Elevator {
         }
 
     }
+
+    @Override
     public synchronized int nextFloor() {
 
         Integer floor = null;
@@ -356,4 +358,10 @@ enum Direction {
 
 enum Type {
     ALL, ODD , EVEN
+}
+
+interface ElevatorSystemInterface
+{
+    void addFloor(int floor);
+    int nextFloor();
 }
