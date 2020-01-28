@@ -3,6 +3,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.TreeSet;
+
+import static java.lang.Math.E;
 import static java.lang.Math.abs;
 
 public class Elavator_system {
@@ -99,7 +101,7 @@ class Elevator {
                     bestelevator = elevatoritr;
                 }
             }
-            else if(elevatoritr.requestSet.isEmpty() && ( (floor%2==0? Type.EVEN : Type.ODD) == elevatoritr.getType() ))
+            else if( (elevatoritr.getRequestProcessorThread().getState() == Thread.State.WAITING) && ( (floor%2==0? Type.EVEN : Type.ODD) == elevatoritr.getType() ))
             {
                 int tempfloordifference = abs(curflr-floor);
                 if(tempfloordifference < floordifference)
@@ -127,7 +129,7 @@ class Elevator {
             }
         }
 
-        System.out.println(bestelevator.getRequestProcessorThread().getName()+ "bestElevator");
+        System.out.println(bestelevator.getRequestProcessorThread().getName()+ "is best Elevator");
 
         if(bestelevator==null)
         {
@@ -190,7 +192,7 @@ class Elevator {
                 }
                 wait();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+           //     e.printStackTrace();
             }
         } else {
             requestSet.remove(floor);
@@ -212,7 +214,7 @@ class Elevator {
 
         System.out.println(requestProcessorThread.getName() + " Floor : " + currentFloor);
 
-        Thread.sleep(1000);
+        Thread.sleep(2000);
     }
 
     public Direction getDirection() {
@@ -258,6 +260,13 @@ class RequestProcessor implements Runnable {
         while (true) {
 
             Elevator elevator = null;
+
+                for(int i=0;i<Elevator.ElevatorInstance.size();i++) {
+                    if ((!Elevator.ElevatorInstance.get(i).requestSet.isEmpty()) && Elevator.ElevatorInstance.get(i).getRequestProcessorThread().getState() == Thread.State.WAITING) {
+                        System.out.println(Elevator.ElevatorInstance.get(i).getRequestProcessorThread().getName() + " is started");
+                        Elevator.ElevatorInstance.get(i).getRequestProcessorThread().interrupt();
+                    }
+                }
 
             for(int i=0;i<Elevator.ElevatorInstance.size();i++) {
                 if (Elevator.ElevatorInstance.get(i).getRequestProcessorThread().getState() != Thread.State.WAITING) {
