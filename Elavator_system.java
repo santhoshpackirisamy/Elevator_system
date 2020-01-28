@@ -3,7 +3,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.TreeSet;
-
 import static java.lang.Math.abs;
 
 public class Elavator_system {
@@ -18,27 +17,34 @@ public class Elavator_system {
         Thread requestProcessorThread1 = new Thread(new RequestProcessor(),"Lift1");
         Thread requestProcessorThread2 = new Thread(new RequestProcessor(),"Lift2");
         Thread requestProcessorThread3 = new Thread(new RequestProcessor(),"Lift3");
+        Thread requestProcessorThread4 = new Thread(new RequestProcessor(),"Lift4");
 
         Elevator elevator1 = new Elevator();
+        elevator1.setType(Type.ALL);
         Elevator elevator2 = new Elevator();
+        elevator2.setType(Type.ALL);
         Elevator elevator3 = new Elevator();
+        elevator3.setType(Type.ODD);
+        Elevator elevator4 = new Elevator();
+        elevator4.setType(Type.EVEN);
 
         ElevatorInstance.add(elevator1);
         ElevatorInstance.add(elevator2);
         ElevatorInstance.add(elevator3);
+        ElevatorInstance.add(elevator4);
 
         elevator1.setRequestProcessorThread(requestProcessorThread1);
         elevator2.setRequestProcessorThread(requestProcessorThread2);
         elevator3.setRequestProcessorThread(requestProcessorThread3);
+        elevator4.setRequestProcessorThread(requestProcessorThread4);
 
         Elevator.setElevator(ElevatorInstance);
-
-//        System.out.println(Elevator.getInstance().getRequestProcessorThread().getName());
 
         requestListenerThread.start();
         requestProcessorThread1.start();
         requestProcessorThread2.start();
         requestProcessorThread3.start();
+        requestProcessorThread4.start();
 
     }
 }
@@ -53,7 +59,7 @@ class Elevator {
 
     private Direction direction = Direction.UP;
 
-//    private Elevator() {};
+    private Type Type;
 
     static ArrayList<Elevator> ElevatorInstance;
 
@@ -64,13 +70,6 @@ class Elevator {
         Elevator.ElevatorInstance = new ArrayList<Elevator>(ElevatorInstance);
     }
 
-//    static Elevator getInstance() {
-//        if (elevator == null) {
-////            elevator = new Elevator();
-//            elevator = Elevator.ElevatorInstance.get(2);
-//        }
-//        return elevator;
-//    }
 
     public synchronized void addFloor(int floor) {
 
@@ -83,7 +82,7 @@ class Elevator {
             int curflr=0;
             elevatoritr = Elevator.ElevatorInstance.get(i);
             curflr = elevatoritr.getCurrentFloor();
-            if(floor > curflr && elevatoritr.direction == Direction.UP)
+            if(floor > curflr && elevatoritr.direction == Direction.UP && ( (floor%2==0? Type.EVEN : Type.ODD) == elevatoritr.getType() ) )
             {
                 int tempfloordifference = floor-curflr;
                 if(tempfloordifference < floordifference)
@@ -92,7 +91,7 @@ class Elevator {
                     bestelevator = elevatoritr;
                 }
             }
-            else if (floor < curflr && elevatoritr.direction == Direction.DOWN)
+            else if (floor < curflr && elevatoritr.direction == Direction.DOWN && ( (floor%2==0? Type.EVEN : Type.ODD) == elevatoritr.getType() ))
             {
                 int tempfloordifference = curflr-floor;
                 if(tempfloordifference < floordifference)
@@ -101,18 +100,35 @@ class Elevator {
                     bestelevator = elevatoritr;
                 }
             }
-            else
+            else if(elevatoritr.requestSet.isEmpty() && ( (floor%2==0? Type.EVEN : Type.ODD) == elevatoritr.getType() ))
             {
-                if(elevatoritr.requestSet.isEmpty())
-                {
                     int tempfloordifference = abs(curflr-floor);
-                    if(tempfloordifference < floordifference) {
+                    if(tempfloordifference < floordifference)
+                    {
                         floordifference = tempfloordifference;
                         bestelevator = elevatoritr;
                     }
+            }
+        }
+
+
+        for(int i=0;i<Elevator.ElevatorInstance.size();i++)
+        {
+            int curflr=0;
+            elevatoritr = Elevator.ElevatorInstance.get(i);
+            curflr = elevatoritr.getCurrentFloor();
+            if(elevatoritr.requestSet.isEmpty() && elevatoritr.getType() == Type.ALL)
+            {
+                int tempfloordifference = abs(curflr-floor);
+                if(tempfloordifference*(1.5) < floordifference)
+                {
+                    floordifference = tempfloordifference;
+                    bestelevator = elevatoritr;
                 }
             }
         }
+
+        System.out.println(bestelevator.getRequestProcessorThread().getName()+ "bestElevator");
 
         if(bestelevator==null)
         {
@@ -157,7 +173,6 @@ class Elevator {
                 int elevatorwaitingcount = 0;
                 for(int i=0;i<Elevator.ElevatorInstance.size();i++) {
                     if ((Elevator.ElevatorInstance.get(i).requestSet.isEmpty())) {
-                        //System.out.println(Elevator.ElevatorInstance.get(i).getRequestProcessorThread().getName() +" "+ requestProcessorThread.getName());
                         elevatorwaitingcount++;
                     }
                 }
@@ -176,10 +191,8 @@ class Elevator {
                 }
                 wait();
             } catch (InterruptedException e) {
-//                e.printStackTrace();
             }
         } else {
-//            System.out.println("removed" + floor);
             requestSet.remove(floor);
         }
         return (floor == null) ? -1 : floor;
@@ -204,6 +217,15 @@ class Elevator {
 
     public Direction getDirection() {
         return direction;
+    }
+
+
+    public void setType(Type Type) {
+        this.Type = Type;
+    }
+
+    public Type getType() {
+        return Type;
     }
 
 
@@ -236,7 +258,6 @@ class RequestProcessor implements Runnable {
         while (true) {
 
             Elevator elevator = null;
-//            Elevator elevator = Elevator.getInstance();
 
             for(int i=0;i<Elevator.ElevatorInstance.size();i++) {
                 if (Elevator.ElevatorInstance.get(i).getRequestProcessorThread().getState() != Thread.State.WAITING) {
@@ -304,7 +325,6 @@ class RequestListener implements Runnable {
                 {
                     elevator = Elevator.ElevatorInstance.get(0);
                 }
-                //      Elevator elevator = Elevator.getInstance();
                 elevator.addFloor(Integer.parseInt(floorNumberStr));
 
                 elevator.getRequestProcessorThread().interrupt();
@@ -323,4 +343,8 @@ class RequestListener implements Runnable {
 
 enum Direction {
     UP, DOWN
+}
+
+enum Type {
+    ALL, ODD , EVEN
 }
