@@ -129,7 +129,6 @@ class Elevator implements ElevatorSystemInterface{
             }
         }
 
-        System.out.println(bestelevator.getRequestProcessorThread().getName()+ " is best Elevator");
 
         if(bestelevator==null)
         {
@@ -142,6 +141,8 @@ class Elevator implements ElevatorSystemInterface{
                 }
             }
         }
+
+        System.out.println(bestelevator.getRequestProcessorThread().getName()+ " is best Elevator");
 
         bestelevator.requestSet.add(floor);
 
@@ -193,8 +194,7 @@ class Elevator implements ElevatorSystemInterface{
                     }
                 }
                 wait();
-            } catch (InterruptedException e) {
-           //     e.printStackTrace();
+            } catch (InterruptedException ignored) {
             }
         } else {
             requestSet.remove(floor);
