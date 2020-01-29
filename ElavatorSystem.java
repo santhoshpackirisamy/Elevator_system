@@ -22,20 +22,15 @@ public class ElavatorSystem {
         Thread requestProcessorThread3 = new Thread(new RequestProcessor(),"Lift3");
         Thread requestProcessorThread4 = new Thread(new RequestProcessor(),"Lift4");
 
-        Elevator elevator1 = new Elevator(Type.ALL);
-        Elevator elevator2 = new Elevator(Type.ALL);
-        Elevator elevator3 = new Elevator(Type.ODD);
-        Elevator elevator4 = new Elevator(Type.EVEN);
+        Elevator elevator1 = new Elevator(Type.ALL,requestProcessorThread1);
+        Elevator elevator2 = new Elevator(Type.ALL,requestProcessorThread2);
+        Elevator elevator3 = new Elevator(Type.ODD,requestProcessorThread3);
+        Elevator elevator4 = new Elevator(Type.EVEN,requestProcessorThread4);
 
         ElevatorInstance.add(elevator1);
         ElevatorInstance.add(elevator2);
         ElevatorInstance.add(elevator3);
         ElevatorInstance.add(elevator4);
-
-        elevator1.setRequestProcessorThread(requestProcessorThread1);
-        elevator2.setRequestProcessorThread(requestProcessorThread2);
-        elevator3.setRequestProcessorThread(requestProcessorThread3);
-        elevator4.setRequestProcessorThread(requestProcessorThread4);
 
         Elevator.setElevator(ElevatorInstance);
 
@@ -56,8 +51,9 @@ class Elevator implements ElevatorSystemInterface{
     private Type Type;
     static ArrayList<Elevator> ElevatorInstance;
     private Thread requestProcessorThread;
-    public Elevator(Type type) {
-        Type = type;
+
+    public Elevator(Type type,Thread requestProcessorThread) {
+        Type = type;this.requestProcessorThread=requestProcessorThread;
     }
 
     public static void setElevator(ArrayList<Elevator> ElevatorInstance)
