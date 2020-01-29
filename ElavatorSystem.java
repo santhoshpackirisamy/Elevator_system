@@ -7,9 +7,10 @@ import java.util.TreeSet;
 import static java.lang.Math.E;
 import static java.lang.Math.abs;
 
-public class Elavator_system {
+public class ElavatorSystem {
 
     public static void main(String[] args) {
+
         System.out.println("Welcome to MyLift");
 
         ArrayList<Elevator> ElevatorInstance = new ArrayList<Elevator>();
@@ -25,6 +26,7 @@ public class Elavator_system {
         Elevator elevator2 = new Elevator(Type.ALL);
         Elevator elevator3 = new Elevator(Type.ODD);
         Elevator elevator4 = new Elevator(Type.EVEN);
+
         ElevatorInstance.add(elevator1);
         ElevatorInstance.add(elevator2);
         ElevatorInstance.add(elevator3);
@@ -48,20 +50,12 @@ public class Elavator_system {
 
 class Elevator implements ElevatorSystemInterface{
 
-    private static Elevator elevator = null;
-
     public TreeSet requestSet = new TreeSet();
-
     private int currentFloor = 0;
-
     private Direction direction = Direction.UP;
-
     private Type Type;
-
     static ArrayList<Elevator> ElevatorInstance;
-
     private Thread requestProcessorThread;
-
     public Elevator(Type type) {
         Type = type;
     }
@@ -74,7 +68,7 @@ class Elevator implements ElevatorSystemInterface{
     @Override
     public synchronized void addFloor(int floor) {
 
-        Elevator elevatoritr = null;
+        Elevator elevatoritr;
         Elevator bestelevator = null;
         int floordifference=100;
 
@@ -129,7 +123,6 @@ class Elevator implements ElevatorSystemInterface{
             }
         }
 
-
         if(bestelevator==null)
         {
             for(int i=0;i<Elevator.ElevatorInstance.size();i++)
@@ -151,7 +144,6 @@ class Elevator implements ElevatorSystemInterface{
         }else{
             requestProcessorThread.interrupt();
         }
-
     }
 
     @Override
@@ -219,19 +211,9 @@ class Elevator implements ElevatorSystemInterface{
         Thread.sleep(2000);
     }
 
-    public Direction getDirection() {
-        return direction;
-    }
-
-
-    public void setType(Type Type) {
-        this.Type = Type;
-    }
-
     public Type getType() {
         return Type;
     }
-
 
     public void setDirection(Direction direction) {
         this.direction = direction;
@@ -247,10 +229,6 @@ class Elevator implements ElevatorSystemInterface{
 
     public TreeSet getRequestSet() {
         return requestSet;
-    }
-
-    public void setRequestSet(TreeSet requestSet) {
-        this.requestSet = requestSet;
     }
 
 }
