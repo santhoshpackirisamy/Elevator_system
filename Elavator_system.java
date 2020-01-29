@@ -129,7 +129,7 @@ class Elevator implements ElevatorSystemInterface{
             }
         }
 
-        System.out.println(bestelevator.getRequestProcessorThread().getName()+ "is best Elevator");
+        System.out.println(bestelevator.getRequestProcessorThread().getName()+ " is best Elevator");
 
         if(bestelevator==null)
         {
@@ -262,13 +262,6 @@ class RequestProcessor implements Runnable {
         while (true) {
 
             Elevator elevator = null;
-
-                for(int i=0;i<Elevator.ElevatorInstance.size();i++) {
-                    if ((!Elevator.ElevatorInstance.get(i).requestSet.isEmpty()) && Elevator.ElevatorInstance.get(i).getRequestProcessorThread().getState() == Thread.State.WAITING) {
-                        System.out.println(Elevator.ElevatorInstance.get(i).getRequestProcessorThread().getName() + " is started");
-                        Elevator.ElevatorInstance.get(i).getRequestProcessorThread().interrupt();
-                    }
-                }
 
             for(int i=0;i<Elevator.ElevatorInstance.size();i++) {
                 if (Elevator.ElevatorInstance.get(i).getRequestProcessorThread().getState() != Thread.State.WAITING) {
